@@ -21,4 +21,7 @@ export class User {
 
   @Column()
   hashedRt: string;
+
+  @Column()
+  title: string;
 }
