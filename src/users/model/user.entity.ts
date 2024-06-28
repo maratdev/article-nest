@@ -10,7 +10,7 @@ export class User {
   })
   firstName: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -20,5 +20,5 @@ export class User {
   isActive: boolean;
 
   @Column()
-  hashedRt: boolean;
+  hashedRt: string;
 }

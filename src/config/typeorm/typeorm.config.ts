@@ -13,10 +13,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('PG_USER'),
       password: this.configService.get<string>('PG_PASSWORD'),
       database: this.configService.get<string>('PG_DATABASE'),
-      migrationsTableName: 'migration',
-      migrations: ['migration/*.ts'],
       autoLoadEntities: true,
-      entities: ['*/**/*.entity.ts'],
+      synchronize: this.configService.get<string>('NODE_ENV') === 'production',
     };
   }
 }
