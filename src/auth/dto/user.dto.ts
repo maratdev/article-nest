@@ -7,15 +7,18 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UserAuthDto {
   @IsString()
   @IsNotEmpty()
+  @MinLength(2, { message: 'Name must have least 2 characters.' })
   firstName: string;
 
   @IsEmail()
   @IsNotEmpty()
   @IsString()
+  @Transform((param) => param.value.toLowerCase())
   email: string;
 
   @IsNotEmpty()
