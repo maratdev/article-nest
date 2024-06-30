@@ -1,11 +1,4 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-import { UserEntity } from '../../users/model/user.entity';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class ArticleDTO {
   @IsString()
@@ -16,12 +9,4 @@ export class ArticleDTO {
   @IsNotEmpty()
   @IsString()
   description: string;
-
-  @IsNotEmpty()
-  @IsDateString() //ISO8601
-  publicationDate: Date;
-
-  @IsString()
-  @IsOptional()
-  author?: UserEntity;
 }

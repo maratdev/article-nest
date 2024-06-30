@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -15,6 +18,8 @@ import { GetCurrentUser } from '../auth/decorators/get-user.decorator';
 import { UserEntity } from '../users/model/user.entity';
 import { AtGuard } from '../config/guards/at.guard';
 import { ArticleEntity } from './model/article.entity';
+import { UpdateArticleDto } from './dto/update-article.dto';
+import { OrderDto } from './dto/order.dto';
 
 @UsePipes(
   new ValidationPipe({
@@ -22,31 +27,49 @@ import { ArticleEntity } from './model/article.entity';
     transform: true,
   }),
 )
+@UseGuards(AtGuard)
 @Controller('article')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
-  @UseGuards(AtGuard)
   @Post('new')
   async newArticle(
     @Body() dto: ArticleDTO,
-    @GetCurrentUser('userId', ParseUUIDPipe) id: UserEntity,
+    @GetCurrentUser('userId', ParseUUIDPipe) userId: UserEntity,
   ) {
-    return this.articleService.createArticle(dto, id);
+    return this.articleService.createArticle(dto, userId);
   }
 
-  @UseGuards(AtGuard)
-  @Get()
-  findAll(@GetCurrentUser('userId', ParseUUIDPipe) id: UserEntity) {
-    return this.articleService.findAll(id);
+  @Get() // /article?order=asc&page=1&limit=3
+  findAll(
+    @GetCurrentUser('userId', ParseUUIDPipe) userId: UserEntity,
+    @Query() { order, page, limit }: OrderDto,
+  ) {
+    return this.articleService.findAll(userId, page, limit, order);
   }
 
-  @UseGuards(AtGuard)
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) articleId: ArticleEntity,
     @GetCurrentUser('userId', ParseUUIDPipe) userId: UserEntity,
   ) {
     return this.articleService.findOne(articleId, userId);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseUUIDPipe) articleId: ArticleEntity,
+    @Body() dto: UpdateArticleDto,
+    @GetCurrentUser('userId', ParseUUIDPipe) userId: UserEntity,
+  ) {
+    return this.articleService.updateArticle(articleId, dto, userId);
+  }
+
+  @Delete(':id')
+  delete(
+    @Param('id', ParseUUIDPipe) articleId: ArticleEntity,
+    @GetCurrentUser('userId', ParseUUIDPipe) userId: UserEntity,
+  ) {
+    return this.articleService.deleteArticle(articleId, userId);
   }
 }

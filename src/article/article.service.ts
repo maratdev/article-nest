@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +9,7 @@ import { ArticleEntity } from './model/article.entity';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { ArticleDTO } from './dto/article.dto';
 import { UserEntity } from '../users/model/user.entity';
+import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Injectable()
 export class ArticleService {
@@ -16,11 +18,11 @@ export class ArticleService {
     private readonly articleRepository: Repository<ArticleEntity>,
   ) {}
 
-  async createArticle(article: ArticleDTO, userId: UserEntity) {
-    const isExist = await this.articleRepository.findBy({
-      title: article.title,
-    });
-    if (isExist.length) throw new ConflictException('Article already exists');
+  async createArticle(
+    article: ArticleDTO,
+    userId: UserEntity,
+  ): Promise<ArticleEntity> {
+    await this.articleCheckDuplicateTitle(article);
 
     const newArticle = {
       ...article,
@@ -29,23 +31,6 @@ export class ArticleService {
     return await this.articleRepository.save(newArticle);
   }
 
-  async findAll(userId: UserEntity): Promise<ArticleEntity[]> {
-    return await this.articleRepository.find(<FindManyOptions>{
-      relations: ['author'],
-      where: {
-        author: {
-          id: userId,
-        },
-      },
-      select: {
-        author: {
-          id: true,
-          firstName: true,
-          email: true,
-        },
-      },
-    });
-  }
   async findOne(
     articleId: ArticleEntity,
     userId: UserEntity,
@@ -68,5 +53,73 @@ export class ArticleService {
     });
     if (!article) throw new NotFoundException('Article not found');
     return article;
+  }
+  async updateArticle(
+    articleId: ArticleEntity,
+    dto: UpdateArticleDto,
+    userId: UserEntity,
+  ) {
+    await this.articleCheckDuplicateTitle(dto);
+    const article = await this.articleRepository.findOne(<FindOneOptions>{
+      where: {
+        id: articleId,
+        author: {
+          id: userId,
+        },
+      },
+    });
+    if (!article) throw new NotFoundException('Article not found');
+    return await this.articleRepository.update(articleId, dto);
+  }
+
+  async findAll(
+    userId: UserEntity,
+    page: number = 1,
+    limit: number = 100,
+    order: string = 'desc',
+  ): Promise<ArticleEntity[]> {
+    return await this.articleRepository.find(<FindManyOptions>{
+      relations: ['author'],
+      where: {
+        author: {
+          id: userId,
+        },
+      },
+      order: {
+        createdAt: order,
+      },
+      take: limit,
+      skip: (page - 1) * limit,
+      select: {
+        author: {
+          id: true,
+          firstName: true,
+          email: true,
+        },
+      },
+    });
+  }
+
+  async deleteArticle(articleId: ArticleEntity, userId: UserEntity) {
+    const article = await this.articleRepository.findOne(<FindOneOptions>{
+      where: {
+        id: articleId,
+        author: {
+          id: userId,
+        },
+      },
+    });
+    if (!article) throw new NotFoundException('Article not found');
+    return await this.articleRepository.delete(articleId);
+  }
+
+  //--------------------- Вспомогательные методы --------------------/
+  private async articleCheckDuplicateTitle(article) {
+    if (!article.title || !article)
+      throw new NotAcceptableException('Article already exists');
+    const isExist = await this.articleRepository.findBy({
+      title: article.title,
+    });
+    if (isExist.length) throw new ConflictException('Article already exists');
   }
 }
