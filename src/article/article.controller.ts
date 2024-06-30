@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,6 +10,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -39,7 +41,7 @@ export class ArticleController {
   ) {
     return this.articleService.createArticle(dto, userId);
   }
-
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get() // /article?order=asc&page=1&limit=3
   findAll(
     @GetCurrentUser('userId', ParseUUIDPipe) userId: UserEntity,
@@ -47,7 +49,7 @@ export class ArticleController {
   ) {
     return this.articleService.findAll(userId, page, limit, order);
   }
-
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) articleId: ArticleEntity,

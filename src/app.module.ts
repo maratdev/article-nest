@@ -6,9 +6,14 @@ import { TypeOrmConfigService } from './config/typeorm/typeorm.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { ArticleModule } from './article/article.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 30 * 1000,
+    }),
     ConfigAppModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -10,12 +11,14 @@ import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { ArticleDTO } from './dto/article.dto';
 import { UserEntity } from '../users/model/user.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ArticleService {
   constructor(
     @InjectRepository(ArticleEntity)
     private readonly articleRepository: Repository<ArticleEntity>,
+    @Inject('CACHE_MANAGER') private readonly cacheManager: Cache,
   ) {}
 
   async createArticle(
@@ -77,7 +80,7 @@ export class ArticleService {
     page: number = 1,
     limit: number = 100,
     order: string = 'desc',
-  ): Promise<ArticleEntity[]> {
+  ): Promise<unknown> {
     return await this.articleRepository.find(<FindManyOptions>{
       relations: ['author'],
       where: {
