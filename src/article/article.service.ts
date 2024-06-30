@@ -12,7 +12,7 @@ import { ArticleDTO } from './dto/article.dto';
 import { UserEntity } from '../users/model/user.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Cache } from 'cache-manager';
-import { ARTICLE } from '../auth/constants';
+import { ARTICLE } from './constants';
 
 @Injectable()
 export class ArticleService {
