@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { ArticleEntity } from '../../article/model/article.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -16,9 +25,18 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column({ default: false })
-  isActive: boolean;
+  @OneToMany(() => ArticleEntity, (article) => article.author, {
+    cascade: true,
+  })
+  @JoinColumn()
+  articles: ArticleEntity[];
 
   @Column({ nullable: true })
   hashedRt: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

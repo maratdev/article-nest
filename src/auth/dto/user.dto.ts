@@ -1,8 +1,6 @@
 import {
-  IsBoolean,
   IsEmail,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -13,6 +11,7 @@ export class UserAuthDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(2, { message: 'Name must have least 2 characters.' })
+  @MaxLength(50)
   firstName: string;
 
   @IsEmail()
@@ -26,8 +25,4 @@ export class UserAuthDto {
   @MaxLength(20)
   @IsString()
   password: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isActive: boolean;
 }

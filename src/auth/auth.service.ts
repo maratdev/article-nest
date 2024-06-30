@@ -26,9 +26,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async registerUser(
-    dto: UserAuthDto,
-  ): Promise<Omit<UserEntity, 'password' | 'hashedRt'>> {
+  async registerUser(dto: UserAuthDto): Promise<object> {
     const salt = await genSalt(10);
     await this.checkDuplicateUser(dto.email);
     const newUser = this.userRepository.create({
@@ -38,7 +36,10 @@ export class AuthService {
     const addedUser = await this.userRepository.save(newUser);
     const tokens = await this.getToken(newUser.id, dto.email);
     await this.updateRtHash(newUser.id, tokens.refresh_token);
-    return this.returnUserFields(addedUser);
+    return {
+      user: await this.returnUserFields(addedUser),
+      token: tokens.access_token,
+    };
   }
 
   async login({ email, password }: LoginDto): Promise<Tokens> {
@@ -69,14 +70,12 @@ export class AuthService {
     });
   }
 
-  // logout
   //--------------------- Вспомогательные методы --------------------/
   private async returnUserFields(user: UserEntity) {
     return {
       id: user.id,
       firstName: user.firstName,
       email: user.email,
-      isActive: user.isActive,
     };
   }
 
