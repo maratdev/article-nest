@@ -1,4 +1,10 @@
-import { IsDateString, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { UserEntity } from '../../users/model/user.entity';
 
 export class ArticleDTO {
@@ -16,5 +22,6 @@ export class ArticleDTO {
   publicationDate: Date;
 
   @IsString()
-  author: UserEntity;
+  @IsOptional()
+  author?: UserEntity;
 }
