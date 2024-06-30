@@ -12,6 +12,7 @@ import { ArticleDTO } from './dto/article.dto';
 import { UserEntity } from '../users/model/user.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Cache } from 'cache-manager';
+import { ARTICLE } from '../auth/constants';
 
 @Injectable()
 export class ArticleService {
@@ -54,7 +55,7 @@ export class ArticleService {
         },
       },
     });
-    if (!article) throw new NotFoundException('Article not found');
+    if (!article) throw new NotFoundException(ARTICLE.NOT_FOUND);
     return article;
   }
   async updateArticle(
@@ -71,7 +72,7 @@ export class ArticleService {
         },
       },
     });
-    if (!article) throw new NotFoundException('Article not found');
+    if (!article) throw new NotFoundException(ARTICLE.NOT_FOUND);
     return await this.articleRepository.update(articleId, dto);
   }
 
@@ -112,17 +113,17 @@ export class ArticleService {
         },
       },
     });
-    if (!article) throw new NotFoundException('Article not found');
+    if (!article) throw new NotFoundException(ARTICLE.NOT_FOUND);
     return await this.articleRepository.delete(articleId);
   }
 
   //--------------------- Вспомогательные методы --------------------/
   private async articleCheckDuplicateTitle(article) {
     if (!article.title || !article)
-      throw new NotAcceptableException('Article already exists');
+      throw new NotAcceptableException(ARTICLE.BAD_REQUEST);
     const isExist = await this.articleRepository.findBy({
       title: article.title,
     });
-    if (isExist.length) throw new ConflictException('Article already exists');
+    if (isExist.length) throw new ConflictException(ARTICLE.CONFLICT);
   }
 }

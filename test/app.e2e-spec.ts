@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { Tokens } from '../src/auth/types';
 import { LoginDto } from '../src/auth/dto/login.dto';
@@ -38,6 +38,7 @@ describe('AppController (e2e)', () => {
         .expect(({ body }: { body: Tokens }) => {
           expect(body.access_token).toBeTruthy();
           tokens = body;
+          Logger.log(tokens);
         });
     });
   });
